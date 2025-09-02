@@ -1,52 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-// Base de données en mémoire comme fallback pour Vercel
-// ATTENTION: Ces données seront perdues lors des redémarrages de serveur
-global.usersDB = global.usersDB || [];
-
-// Pour le développement local, utiliser un fichier JSON
-// En production, utiliser la mémoire + tentative de fichier
-const DATA_FILE = '/tmp/users.json';
-
-// Fonction pour lire les données existantes
-function readUsers() {
-  try {
-    // D'abord essayer de lire le fichier
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      const fileUsers = JSON.parse(data);
-      // Synchroniser avec la mémoire
-      global.usersDB = fileUsers;
-      return fileUsers;
-    }
-    // Sinon utiliser les données en mémoire
-    return global.usersDB || [];
-  } catch (error) {
-    console.error('Erreur lecture fichier, utilisation mémoire:', error);
-    return global.usersDB || [];
-  }
-}
-
-// Fonction pour sauvegarder les données
-function saveUsers(users) {
-  try {
-    // Sauvegarder en mémoire (toujours réussit)
-    global.usersDB = users;
-    
-    // Essayer de sauvegarder dans le fichier (peut échouer sur Vercel)
-    try {
-      fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
-    } catch (fileError) {
-      console.warn('Impossible de sauvegarder dans le fichier, données en mémoire seulement:', fileError.message);
-    }
-    
-    return true;
-  } catch (error) {
-    console.error('Erreur sauvegarde:', error);
-    return false;
-  }
-}
+import { getUsers, addUser } from './users-db.js';
 
 // Fonction pour valider les données
 function validateUserData(data) {
@@ -100,7 +52,7 @@ export default async function handler(req, res) {
     }
     
     // Lire les utilisateurs existants
-    const users = readUsers();
+    const users = getUsers();
     
     // Vérifier si l'utilisateur existe déjà (par téléphone ou email)
     const existingUser = users.find(user => 
@@ -114,33 +66,30 @@ export default async function handler(req, res) {
       });
     }
     
-    // Ajouter les métadonnées
-    const newUser = {
+    // Ajouter l'utilisateur avec le prix
+    const userWithPrize = {
       ...userData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
       prize: userData.prize || null
     };
     
-    users.push(newUser);
+    const result = addUser(userWithPrize);
     
-    // Sauvegarder
-    if (saveUsers(users)) {
+    if (result.success) {
       res.json({ 
         success: true, 
         message: 'Utilisateur sauvegardé avec succès',
-        userId: newUser.id 
+        userId: result.user.id 
       });
     } else {
       res.status(500).json({ 
         success: false, 
-        error: 'Erreur lors de la sauvegarde' 
+        error: result.error || 'Erreur lors de la sauvegarde' 
       });
     }
     
   } else if (req.method === 'GET') {
     // Récupérer tous les utilisateurs (pour admin)
-    const users = readUsers();
+    const users = getUsers();
     res.json({ 
       success: true, 
       users: users,

@@ -1,29 +1,4 @@
-import fs from 'fs';
-
-// Base de données en mémoire partagée avec save-user.js
-global.usersDB = global.usersDB || [];
-
-// Fichier de données Vercel
-const DATA_FILE = '/tmp/users.json';
-
-// Fonction pour lire les données existantes
-function readUsers() {
-  try {
-    // D'abord essayer de lire le fichier
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      const fileUsers = JSON.parse(data);
-      // Synchroniser avec la mémoire
-      global.usersDB = fileUsers;
-      return fileUsers;
-    }
-    // Sinon utiliser les données en mémoire
-    return global.usersDB || [];
-  } catch (error) {
-    console.error('Erreur lecture fichier, utilisation mémoire:', error);
-    return global.usersDB || [];
-  }
-}
+import { getUsers } from './users-db.js';
 
 // Handler pour Vercel - API simple pour récupérer les utilisateurs
 export default async function handler(req, res) {
@@ -39,13 +14,13 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'GET') {
-    const users = readUsers();
+    const users = getUsers();
     
     res.json({ 
       success: true, 
       users: users,
       count: users.length,
-      location: DATA_FILE,
+      location: 'distributed-storage',
       timestamp: new Date().toISOString()
     });
     
