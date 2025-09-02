@@ -81,4 +81,4 @@ export async function sendSMS(phoneNumber: string, message: string): Promise<SMS
 }
 
 // Message par défaut à envoyer
-export const DEFAULT_SMS_MESSAGE = "Merci pour votre participation ! Vous êtes sur le point de découvrir votre cadeau surprise. Complétez le formulaire pour le révéler ! 🎁";
+export const DEFAULT_SMS_MESSAGE = "Merci de télécharger l'app Xamle via le lien https://blog.me-qr.com/page/the-top-video-game-soundtracks-of-all-time-music-that-stays-with-you";
