@@ -2,14 +2,14 @@
   "version": 2,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "functions": {
@@ -17,6 +17,9 @@
       "maxDuration": 30
     },
     "api/save-user.js": {
+      "maxDuration": 10
+    },
+    "api/save-user-local.js": {
       "maxDuration": 10
     }
   }
