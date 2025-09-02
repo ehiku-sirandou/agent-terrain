@@ -1,31 +1,49 @@
 import fs from 'fs';
 import path from 'path';
 
+// Base de données en mémoire comme fallback pour Vercel
+// ATTENTION: Ces données seront perdues lors des redémarrages de serveur
+global.usersDB = global.usersDB || [];
+
 // Pour le développement local, utiliser un fichier JSON
-// En production, vous pouvez utiliser une vraie base de données
+// En production, utiliser la mémoire + tentative de fichier
 const DATA_FILE = '/tmp/users.json';
 
 // Fonction pour lire les données existantes
 function readUsers() {
   try {
+    // D'abord essayer de lire le fichier
     if (fs.existsSync(DATA_FILE)) {
       const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data);
+      const fileUsers = JSON.parse(data);
+      // Synchroniser avec la mémoire
+      global.usersDB = fileUsers;
+      return fileUsers;
     }
-    return [];
+    // Sinon utiliser les données en mémoire
+    return global.usersDB || [];
   } catch (error) {
-    console.error('Erreur lecture fichier:', error);
-    return [];
+    console.error('Erreur lecture fichier, utilisation mémoire:', error);
+    return global.usersDB || [];
   }
 }
 
 // Fonction pour sauvegarder les données
 function saveUsers(users) {
   try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    // Sauvegarder en mémoire (toujours réussit)
+    global.usersDB = users;
+    
+    // Essayer de sauvegarder dans le fichier (peut échouer sur Vercel)
+    try {
+      fs.writeFileSync(DATA_FILE, JSON.stringify(users, null, 2));
+    } catch (fileError) {
+      console.warn('Impossible de sauvegarder dans le fichier, données en mémoire seulement:', fileError.message);
+    }
+    
     return true;
   } catch (error) {
-    console.error('Erreur sauvegarde fichier:', error);
+    console.error('Erreur sauvegarde:', error);
     return false;
   }
 }
