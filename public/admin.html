@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Scratch Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            border-left: 4px solid #8B5CF6;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #8B5CF6;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+        
+        .loading {
+            display: none;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .prize-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .date {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .no-data-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .table-container {
+                padding: 20px;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <span>🎁</span>
+                Administration Scratch Card
+                <span>📊</span>
+            </h1>
+            <p>Tableau de bord des participants</p>
+        </div>
+        
+        <div class="stats" id="stats">
+            <!-- Les statistiques seront chargées ici -->
+        </div>
+        
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadData()">
+                <span>🔄</span>
+                Actualiser les données
+            </button>
+            <div class="loading" id="loading">
+                ⏳ Chargement des données...
+            </div>
+            <div id="lastUpdate"></div>
+        </div>
+        
+        <div class="table-container">
+            <div id="content">
+                <!-- Le contenu sera chargé ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            const stats = document.getElementById('stats');
+            const lastUpdate = document.getElementById('lastUpdate');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/get-users');
+                const data = await response.json();
+                
+                if (data.success) {
+                    users = data.users;
+                    updateStats();
+                    renderTable();
+                    lastUpdate.innerHTML = `<small style="color: #64748b;">Dernière mise à jour: ${new Date().toLocaleString('fr-FR')}</small>`;
+                } else {
+                    throw new Error(data.error || 'Erreur inconnue');
+                }
+            } catch (error) {
+                content.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Erreur de chargement</strong><br>
+                        ${error.message}<br>
+                        <small>Vérifiez que l'API /api/get-users fonctionne correctement.</small>
+                    </div>
+                `;
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+        
+        function updateStats() {
+            const totalUsers = users.length;
+            const usersWithPrize = users.filter(u => u.prize).length;
+            const uniquePrizes = new Set(users.filter(u => u.prize).map(u => u.prize)).size;
+            const todayUsers = users.filter(u => {
+                if (!u.createdAt) return false;
+                const today = new Date().toDateString();
+                const userDate = new Date(u.createdAt).toDateString();
+                return today === userDate;
+            }).length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalUsers}</div>
+                    <div class="stat-label">Total Participants</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${usersWithPrize}</div>
+                    <div class="stat-label">Prix Attribués</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${uniquePrizes}</div>
+                    <div class="stat-label">Types de Prix</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${todayUsers}</div>
+                    <div class="stat-label">Aujourd'hui</div>
+                </div>
+            `;
+        }
+        
+        function renderTable() {
+            const content = document.getElementById('content');
+            
+            if (users.length === 0) {
+                content.innerHTML = `
+                    <div class="no-data">
+                        <div class="no-data-icon">📭</div>
+                        <h3>Aucun participant pour le moment</h3>
+                        <p>Les données apparaîtront ici dès que des utilisateurs rempliront le formulaire.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Participant</th>
+                            <th>Contact</th>
+                            <th>Profession</th>
+                            <th>Prix Gagné</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td><strong>#${user.id}</strong></td>
+                                <td class="user-name">${user.prenom} ${user.nom}</td>
+                                <td>
+                                    📱 ${user.telephone}<br>
+                                    📧 ${user.email}
+                                </td>
+                                <td>${user.profession}</td>
+                                <td>
+                                    ${user.prize ? `<span class="prize-badge">${user.prize}</span>` : '<span style="color: #64748b;">-</span>'}
+                                </td>
+                                <td class="date">
+                                    ${user.createdAt ? new Date(user.createdAt).toLocaleString('fr-FR') : '-'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            content.innerHTML = tableHTML;
+        }
+        
+        // Charger les données au démarrage
+        loadData();
+        
+        // Auto-refresh toutes les 30 secondes
+        setInterval(loadData, 30000);
+    </script>
+</body>
+</html>
