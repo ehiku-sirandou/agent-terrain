@@ -22,7 +22,7 @@
     "api/save-user-local.js": {
       "maxDuration": 10
     },
-    "api/admin.js": {
+    "api/get-users.js": {
       "maxDuration": 10
     }
   }
