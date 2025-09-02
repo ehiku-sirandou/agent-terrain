@@ -1,25 +1,9 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ],
   "functions": {
     "api/send-sms.js": {
       "maxDuration": 30
     },
     "api/save-user.js": {
-      "maxDuration": 10
-    },
-    "api/save-user-local.js": {
       "maxDuration": 10
     },
     "api/get-users.js": {
