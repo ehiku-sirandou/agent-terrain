@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vercel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        h1 { font-size: 2.5em; margin-bottom: 20px; }
+        p { font-size: 1.2em; margin: 10px 0; }
+        .status { 
+            background: #10B981; 
+            padding: 10px 20px; 
+            border-radius: 10px; 
+            display: inline-block;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Test Vercel</h1>
+        <div class="status">✅ Vercel fonctionne !</div>
+        <p>Si vous voyez cette page, Vercel déploie correctement.</p>
+        <p>Le problème vient probablement de l'application React principale.</p>
+        <p><strong>Timestamp:</strong> <span id="time"></span></p>
+        <hr style="margin: 30px 0; border: 1px solid rgba(255,255,255,0.3);">
+        <p><a href="/" style="color: #FFD700; text-decoration: none;">← Retour à l'application principale</a></p>
+    </div>
+    
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString('fr-FR');
+    </script>
+</body>
+</html>
